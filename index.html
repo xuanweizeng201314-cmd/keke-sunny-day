@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>可可今日小晴天</title>
+  <style>
+    :root {
+      --cream: #fffaf1;
+      --cream-deep: #fff1d9;
+      --cocoa: #8a654f;
+      --cocoa-deep: #604234;
+      --pink: #ffdce5;
+      --pink-deep: #f7b9c9;
+      --yellow: #fff2a8;
+      --green: #b9ddb0;
+      --green-deep: #6fa16d;
+      --white: rgba(255, 255, 255, 0.82);
+      --shadow: 0 18px 45px rgba(120, 85, 61, 0.16);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--cocoa-deep);
+      font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      line-height: 1.75;
+      background:
+        radial-gradient(circle at 18% 8%, rgba(255, 220, 229, 0.75) 0 72px, transparent 73px),
+        radial-gradient(circle at 86% 20%, rgba(255, 242, 168, 0.65) 0 64px, transparent 65px),
+        radial-gradient(circle at 16% 82%, rgba(255, 241, 217, 0.95) 0 86px, transparent 87px),
+        linear-gradient(160deg, #fffaf1 0%, #fff6e8 48%, #ffeef4 100%);
+      overflow-x: hidden;
+    }
+
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::before {
+      background-image:
+        radial-gradient(circle, rgba(138, 101, 79, 0.16) 0 2px, transparent 2.5px),
+        radial-gradient(circle, rgba(247, 185, 201, 0.48) 0 3px, transparent 3.5px);
+      background-size: 74px 74px, 112px 112px;
+      background-position: 10px 18px, 44px 30px;
+      opacity: 0.72;
+    }
+
+    body::after {
+      background:
+        radial-gradient(ellipse at 72% 68%, rgba(255, 255, 255, 0.45) 0 38px, transparent 39px),
+        radial-gradient(ellipse at 80% 67%, rgba(255, 255, 255, 0.42) 0 28px, transparent 29px),
+        radial-gradient(ellipse at 64% 67%, rgba(255, 255, 255, 0.38) 0 26px, transparent 27px);
+      opacity: 0.7;
+    }
+
+    .page {
+      position: relative;
+      z-index: 1;
+      width: min(100%, 480px);
+      margin: 0 auto;
+      padding: 22px 18px 34px;
+    }
+
+    .hero {
+      min-height: 96vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 18px;
+      padding: 18px 0 32px;
+    }
+
+    .sun-tag {
+      align-self: flex-start;
+      padding: 7px 13px;
+      border: 1px solid rgba(138, 101, 79, 0.12);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.56);
+      color: var(--cocoa);
+      font-size: 13px;
+      box-shadow: 0 8px 22px rgba(120, 85, 61, 0.08);
+    }
+
+    h1,
+    h2,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      max-width: 12em;
+      font-size: clamp(32px, 10vw, 46px);
+      line-height: 1.18;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    h2 {
+      font-size: 22px;
+      line-height: 1.35;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      color: rgba(96, 66, 52, 0.78);
+      font-size: 16px;
+    }
+
+    .section {
+      margin: 18px 0;
+    }
+
+    .card {
+      position: relative;
+      padding: 22px 20px;
+      border: 1px solid rgba(138, 101, 79, 0.12);
+      border-radius: 24px;
+      background: var(--white);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+
+    .card.soft {
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.88), rgba(255, 244, 226, 0.82));
+    }
+
+    .card p + p {
+      margin-top: 12px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .fade-in {
+      animation: fadeInUp 620ms ease both;
+    }
+
+    .button {
+      width: 100%;
+      min-height: 50px;
+      border: 0;
+      border-radius: 999px;
+      padding: 13px 18px;
+      color: var(--cocoa-deep);
+      background: linear-gradient(135deg, #fff2a8, #ffdce5);
+      box-shadow: 0 12px 25px rgba(138, 101, 79, 0.16);
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 150ms ease, box-shadow 150ms ease, filter 150ms ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .button:active,
+    .button.is-pressed {
+      transform: scale(0.97);
+      box-shadow: 0 8px 18px rgba(138, 101, 79, 0.14);
+      filter: brightness(0.99);
+    }
+
+    .button.secondary {
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid rgba(138, 101, 79, 0.12);
+      box-shadow: 0 8px 18px rgba(138, 101, 79, 0.09);
+      font-weight: 700;
+    }
+
+    .button.green {
+      background: linear-gradient(135deg, #e6f4df, #fff2a8);
+    }
+
+    .button-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .button-grid .button {
+      min-height: 58px;
+      padding: 12px 10px;
+      font-size: 15px;
+    }
+
+    .response {
+      min-height: 64px;
+      margin-top: 15px;
+      padding: 14px 15px;
+      border-radius: 18px;
+      background: rgba(255, 250, 241, 0.9);
+      color: rgba(96, 66, 52, 0.88);
+      border: 1px dashed rgba(138, 101, 79, 0.16);
+    }
+
+    .mini-note {
+      color: rgba(96, 66, 52, 0.62);
+      font-size: 13px;
+    }
+
+    .meter {
+      margin-top: 14px;
+      overflow: hidden;
+      height: 12px;
+      border-radius: 999px;
+      background: rgba(138, 101, 79, 0.09);
+    }
+
+    .meter span {
+      display: block;
+      width: 100%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--pink-deep), var(--yellow));
+      transform-origin: left center;
+      transition: transform 420ms ease;
+    }
+
+    .lucky-area {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .egg {
+      position: relative;
+      margin-top: 16px;
+      padding: 20px 18px;
+      border-radius: 24px;
+      border: 1px solid rgba(111, 161, 109, 0.24);
+      background: linear-gradient(145deg, rgba(245, 255, 240, 0.94), rgba(255, 250, 241, 0.9));
+      box-shadow: 0 16px 36px rgba(87, 137, 86, 0.14);
+      overflow: hidden;
+    }
+
+    .egg h3 {
+      margin: 0 0 10px;
+      color: #4f8450;
+      font-size: 20px;
+      letter-spacing: 0;
+    }
+
+    .egg p + p {
+      margin-top: 10px;
+    }
+
+    .egg-small {
+      margin-top: 13px;
+      color: rgba(79, 132, 80, 0.72);
+      font-size: 13px;
+    }
+
+    .leaf {
+      position: absolute;
+      width: 18px;
+      height: 12px;
+      border-radius: 16px 16px 16px 2px;
+      background: rgba(111, 161, 109, 0.38);
+      transform: rotate(35deg);
+      animation: floatLeaf 4.8s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    .leaf:nth-child(1) {
+      top: 10px;
+      right: 22px;
+      animation-delay: 0ms;
+    }
+
+    .leaf:nth-child(2) {
+      top: 50px;
+      right: 58px;
+      width: 14px;
+      height: 10px;
+      animation-delay: 650ms;
+    }
+
+    .leaf:nth-child(3) {
+      bottom: 18px;
+      left: 24px;
+      width: 16px;
+      height: 11px;
+      animation-delay: 1200ms;
+    }
+
+    .leaf:nth-child(4) {
+      bottom: 36px;
+      right: 16px;
+      width: 13px;
+      height: 9px;
+      animation-delay: 1650ms;
+    }
+
+    .footer {
+      padding: 30px 8px 4px;
+      color: rgba(96, 66, 52, 0.68);
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .float-star,
+    .float-cloud {
+      position: absolute;
+      z-index: -1;
+      color: rgba(138, 101, 79, 0.16);
+      user-select: none;
+      animation: breathe 5s ease-in-out infinite;
+    }
+
+    .float-star.one {
+      top: 110px;
+      right: 16px;
+      font-size: 25px;
+    }
+
+    .float-star.two {
+      top: 620px;
+      left: 10px;
+      font-size: 18px;
+      animation-delay: 900ms;
+    }
+
+    .float-cloud {
+      top: 330px;
+      right: 24px;
+      font-size: 34px;
+      opacity: 0.52;
+      animation-delay: 450ms;
+    }
+
+    .music-toggle {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      z-index: 5;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      min-height: 44px;
+      max-width: calc(100vw - 32px);
+      border: 1px solid rgba(138, 101, 79, 0.14);
+      border-radius: 999px;
+      padding: 10px 14px;
+      color: var(--cocoa-deep);
+      background: rgba(255, 255, 255, 0.84);
+      box-shadow: 0 12px 28px rgba(120, 85, 61, 0.16);
+      backdrop-filter: blur(12px);
+      font: inherit;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 150ms ease, box-shadow 150ms ease, background 150ms ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .music-toggle:active,
+    .music-toggle.is-pressed {
+      transform: scale(0.96);
+      box-shadow: 0 8px 20px rgba(120, 85, 61, 0.13);
+    }
+
+    .music-toggle.is-playing {
+      background: linear-gradient(135deg, rgba(255, 242, 168, 0.92), rgba(255, 220, 229, 0.92));
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes breathe {
+      0%,
+      100% {
+        transform: translateY(0) rotate(0deg);
+      }
+      50% {
+        transform: translateY(-8px) rotate(4deg);
+      }
+    }
+
+    @keyframes floatLeaf {
+      0%,
+      100% {
+        opacity: 0.38;
+        transform: translateY(0) rotate(35deg);
+      }
+      50% {
+        opacity: 0.8;
+        transform: translateY(-12px) rotate(48deg);
+      }
+    }
+
+    @media (max-width: 360px) {
+      .page {
+        padding-inline: 14px;
+      }
+
+      .button-grid {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 30px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <audio id="bgMusic" src="sanye_theme.mp3" preload="auto" loop></audio>
+  <button class="music-toggle" id="musicToggle" type="button" aria-label="打开背景音乐">
+    <span id="musicIcon">♪</span>
+    <span id="musicText">打开背景音乐</span>
+  </button>
+
+  <main class="page">
+    <span class="float-star one">✦</span>
+    <span class="float-star two">✧</span>
+    <span class="float-cloud">☁️</span>
+
+    <section class="hero">
+      <div class="sun-tag">可可今日小晴天</div>
+      <h1>可可，今天给你放一个小小的开心补丁 🍫</h1>
+      <p class="subtitle">
+        不是很严肃的道歉，也不是要把事情说得很严重。
+        只是觉得今天好像有一点点没照顾到你的感受，所以想偷偷补救一下。
+      </p>
+      <button class="button" id="openSky">打开今日小晴天 ☁️</button>
+    </section>
+
+    <section class="section hidden" id="openingCard">
+      <div class="card soft">
+        <p>可可，今天好像有一点点让你不开心了。</p>
+        <p>虽然不是特别严重的大事，但我还是想认真补一句：</p>
+        <p><strong>可可不要因为这个影响心情。</strong></p>
+        <p>认识你还挺开心的。你很好说话，声音也很好听，偶尔还会有一点点小内耗。</p>
+        <p>以后会认识多久我不知道，但现在能认识你，就已经是一件挺好的小事了。</p>
+        <p>所以这个网页的任务很简单：</p>
+        <p><strong>让可可看到这里的时候，心情比刚才轻一点点。</strong></p>
+      </div>
+    </section>
+
+    <section class="section hidden" id="moodSection">
+      <div class="card">
+        <h2>可可现在需要什么？</h2>
+        <div class="button-grid">
+          <button class="button secondary mood-btn" data-text="那这里掉落一点开心：可可今天已经很不错啦。">一点点开心</button>
+          <button class="button secondary mood-btn" data-text="可可很好说话，也很好听，不许偷偷怀疑自己。">一点点夸夸</button>
+          <button class="button secondary mood-btn" data-text="游戏只是游戏，不是考试。可可不用把每句话都往心里装。">一点点放松</button>
+          <button class="button secondary mood-btn" data-text="已发送虚拟巧克力一颗，作用是让可可少内耗 5 分钟 🍫">一点点巧克力</button>
+        </div>
+        <div class="response" id="moodResponse">点一个按钮，这里会接住可可现在需要的小东西。</div>
+      </div>
+    </section>
+
+    <section class="section hidden" id="worrySection">
+      <div class="card">
+        <h2>把内耗揉小一点</h2>
+        <p class="mini-note">每点一次，就把今天的小纠结轻轻揉小一点。</p>
+        <button class="button" id="shrinkWorry" style="margin-top: 15px;">揉小一点内耗 ☁️</button>
+        <div class="response" id="worryResponse">内耗值还没有开始下降，等可可轻轻点一下。</div>
+        <div class="meter" aria-label="内耗值">
+          <span id="worryMeter"></span>
+        </div>
+        <p class="mini-note" id="worryValue">内耗值 100%</p>
+      </div>
+    </section>
+
+    <section class="section hidden" id="luckySection">
+      <div class="card lucky-area">
+        <h2>认识可可，是一件挺开心的小事</h2>
+        <p>有些人是很偶然认识的，但偶然不代表不珍贵。</p>
+        <p>可可给人的感觉是温温和和的，很好说话，也很好听。</p>
+        <p>虽然不知道以后会接触多久，但至少现在认识可可这件事，对我来说是开心的。</p>
+        <p>希望可可每天都可以轻松一点，开心一点，少一点点内耗。</p>
+        <button class="button green" id="luckyButton" style="margin-top: 16px;">收下一点今日好运 ✨</button>
+        <div class="response" id="luckyResponse">今日好运还藏在按钮后面，等可可来收下。</div>
+
+        <div class="hidden" id="cloverEgg">
+          <div class="egg">
+            <span class="leaf"></span>
+            <span class="leaf"></span>
+            <span class="leaf"></span>
+            <span class="leaf"></span>
+            <h3>🍀 第四片叶子</h3>
+            <p>有一句话，我一直记得。</p>
+            <p>人们说，三叶草的花语是幸福，四叶草的花语是幸运。</p>
+            <p>如果我是三叶草，那可可就是我的第四片叶子。</p>
+            <p>我的意思是：</p>
+            <p><strong>遇见你，我很幸运。</strong></p>
+            <p class="egg-small">这句话本来就很温柔，所以我把它悄悄藏在这里。</p>
+          </div>
+          <p class="mini-note" style="margin-top: 10px;">你找到了一片小小的幸运 🍀</p>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer hidden" id="pageFooter">
+      <p>送给可可：</p>
+      <p>愿你今天的心情，比刚打开这里时轻一点点。</p>
+    </footer>
+  </main>
+
+  <script>
+    const openSky = document.querySelector("#openSky");
+    const openingCard = document.querySelector("#openingCard");
+    const moodSection = document.querySelector("#moodSection");
+    const worrySection = document.querySelector("#worrySection");
+    const luckySection = document.querySelector("#luckySection");
+    const pageFooter = document.querySelector("#pageFooter");
+    const moodResponse = document.querySelector("#moodResponse");
+    const worryResponse = document.querySelector("#worryResponse");
+    const worryMeter = document.querySelector("#worryMeter");
+    const worryValue = document.querySelector("#worryValue");
+    const luckyButton = document.querySelector("#luckyButton");
+    const luckyResponse = document.querySelector("#luckyResponse");
+    const cloverEgg = document.querySelector("#cloverEgg");
+    const bgMusic = document.querySelector("#bgMusic");
+    const musicToggle = document.querySelector("#musicToggle");
+    const musicIcon = document.querySelector("#musicIcon");
+    const musicText = document.querySelector("#musicText");
+
+    const worryNotes = [
+      "可可不用因为一点小事就偷偷想很多。",
+      "被朋友压力到会难过，是很正常的。",
+      "游戏本来是用来开心的，不是用来内耗的。",
+      "可可已经很好啦，不需要每次都表现得很完美。",
+      "今天如果有一点点不开心，也可以慢慢散掉。",
+      "不许偷偷把别人的压力全背到自己身上。",
+      "可可不是麻烦的人，可可是很值得被好好说话的人。",
+      "有些话听起来有点重，但不代表可可真的不好。",
+      "今天先不责怪自己，好不好。",
+      "希望可可被温柔一点对待，也被自己温柔一点对待。"
+    ];
+
+    const luckyNotes = [
+      "今天可可会遇到一点点好事。",
+      "今天可可可以少想一点，多开心一点。",
+      "今天可可不用很厉害，也值得被好好对待。",
+      "今天的小不开心到这里就暂停一下。",
+      "希望可可睡前能想起一点开心的事。",
+      "可可的好，不会因为一局游戏、一点小事就消失。",
+      "今天的可可也值得被温柔对待。",
+      "希望可可今天可以轻轻松松地过去。",
+      "如果今天有一点累，那就先慢慢休息。",
+      "明天的小晴天也会慢慢来。"
+    ];
+
+    let worryCount = 0;
+    let luckyCount = 0;
+
+    function showElement(element) {
+      element.classList.remove("hidden");
+      element.classList.remove("fade-in");
+      void element.offsetWidth;
+      element.classList.add("fade-in");
+    }
+
+    function randomItem(list) {
+      return list[Math.floor(Math.random() * list.length)];
+    }
+
+    function pressFeedback(button) {
+      button.classList.add("is-pressed");
+      window.setTimeout(() => button.classList.remove("is-pressed"), 160);
+    }
+
+    function updateMusicButton(isPlaying) {
+      musicToggle.classList.toggle("is-playing", isPlaying);
+      musicIcon.textContent = isPlaying ? "♫" : "♪";
+      musicText.textContent = isPlaying ? "背景音乐播放中" : "打开背景音乐";
+      musicToggle.setAttribute("aria-label", isPlaying ? "暂停背景音乐" : "打开背景音乐");
+    }
+
+    musicToggle.addEventListener("click", async () => {
+      pressFeedback(musicToggle);
+
+      if (bgMusic.paused) {
+        try {
+          bgMusic.volume = 0.42;
+          await bgMusic.play();
+          updateMusicButton(true);
+        } catch (error) {
+          musicText.textContent = "再轻轻点一下音乐";
+        }
+      } else {
+        bgMusic.pause();
+        updateMusicButton(false);
+      }
+    });
+
+    bgMusic.addEventListener("pause", () => updateMusicButton(false));
+    bgMusic.addEventListener("play", () => updateMusicButton(true));
+
+    openSky.addEventListener("click", () => {
+      pressFeedback(openSky);
+      [openingCard, moodSection, worrySection, luckySection, pageFooter].forEach((section, index) => {
+        window.setTimeout(() => showElement(section), index * 130);
+      });
+      window.setTimeout(() => {
+        openingCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 260);
+    });
+
+    document.querySelectorAll(".mood-btn").forEach((button) => {
+      button.addEventListener("click", () => {
+        pressFeedback(button);
+        moodResponse.textContent = button.dataset.text;
+        moodResponse.classList.remove("fade-in");
+        void moodResponse.offsetWidth;
+        moodResponse.classList.add("fade-in");
+      });
+    });
+
+    document.querySelector("#shrinkWorry").addEventListener("click", (event) => {
+      pressFeedback(event.currentTarget);
+      worryCount += 1;
+
+      if (worryCount === 5) {
+        worryResponse.textContent = "内耗已被揉成小团子。可可今天可以少想一点，多开心一点。";
+      } else {
+        worryResponse.textContent = randomItem(worryNotes);
+      }
+
+      const value = Math.max(0, 100 - worryCount * 10);
+      worryMeter.style.transform = `scaleX(${value / 100})`;
+      worryValue.textContent = `内耗值 -${Math.min(worryCount * 10, 100)}%，现在还剩 ${value}%`;
+      worryResponse.classList.remove("fade-in");
+      void worryResponse.offsetWidth;
+      worryResponse.classList.add("fade-in");
+    });
+
+    luckyButton.addEventListener("click", () => {
+      pressFeedback(luckyButton);
+      luckyCount += 1;
+      luckyResponse.textContent = randomItem(luckyNotes);
+      luckyResponse.classList.remove("fade-in");
+      void luckyResponse.offsetWidth;
+      luckyResponse.classList.add("fade-in");
+
+      if (luckyCount === 4) {
+        showElement(cloverEgg);
+        window.setTimeout(() => {
+          cloverEgg.scrollIntoView({ behavior: "smooth", block: "center" });
+        }, 180);
+      }
+    });
+  </script>
+</body>
+</html>
